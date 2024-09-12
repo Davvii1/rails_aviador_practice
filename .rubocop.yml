@@ -1,0 +1,23 @@
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+AllCops:
+  NewCops: enable
+  Exclude:
+    - "db/schema.rb"
+
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  Exclude:
+    - "db/migrate/*"
+
+Metrics/MethodLength:
+  Max: 8
+  Exclude: ["db/migrate/*", "spec/**/*"]
+
+Metrics/BlockLength:
+  Exclude: ["db/migrate/*", "spec/**/*"]
+
+require: rubocop-rails
