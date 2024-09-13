@@ -3,16 +3,13 @@ module Filterable
 
   class_methods do
     def filter(filtering_params)
+      @products = all
       filtered_params = filter_params(filtering_params)
-      return all if filtered_params.empty?
-
-      if filtered_params.keys.length == 1
-        public_send("find_by_#{filtered_params.keys.first}!", filtered_params.values.first)
+      filtered_params.each do |key, value|
+        @products = @products.public_send("filter_by_#{key}", value) if value.present?
       end
 
-      return unless filtered_params.keys.length > 1
-
-      public_send("find_by_#{filtered_params.keys.join('_and_')}!", *filtered_params.values)
+      @products
     end
 
     def filter_params(params)

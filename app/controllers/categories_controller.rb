@@ -1,8 +1,7 @@
 class CategoriesController < ApplicationController
   def index
-    @categories = Category
-                  .filter(filtering_params)
-                  .pagination(pagination_limit, pagination_offset)
+    @categories = Category.filter(filtering_params)
+                          .pagination(pagination_limit, pagination_offset)
 
     render json: @categories
   end
