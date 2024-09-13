@@ -1,7 +1,7 @@
 class CategoriesController < ApplicationController
   def index
     @categories = Category
-                  .filter(name_filter)
+                  .filter(filtering_params)
                   .pagination(pagination_limit, pagination_offset)
 
     render json: @categories
@@ -27,7 +27,7 @@ class CategoriesController < ApplicationController
     params[:offset].to_i if params[:offset].present?
   end
 
-  def name_filter
+  def filtering_params
     params.slice(:name)
   end
 end

@@ -2,7 +2,7 @@ class Category < ApplicationRecord
   include Pagination
   include Filterable
 
-  scope :filter_by_name, ->(name) { where('name like ?', "%#{name}%") }
+  default_scope { where(active: true) }
 
   validates :active, inclusion: { in: [true, false] }
   validates :icon, presence: true

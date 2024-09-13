@@ -1,42 +1,53 @@
-RSpec.describe Filterable do
-  before(:each) do
-    # Clear all existing instances
-    FilterableModel.reset_records
+class FilterableModel < ApplicationRecord
+  include Filterable
 
-    # Create test data
-    @item1 = FilterableModel.create('Gadget', 100)
-    @item2 = FilterableModel.create('Widget', 200)
-    @item3 = FilterableModel.create('Gadget', 300)
+  def self.find_by_name!(name); end
+
+  def self.find_by_age!(age); end
+
+  def self.find_by_name_and_age!(name, age); end
+end
+
+RSpec.describe Filterable do
+  before do
+    allow(FilterableModel).to receive(:all)
+    allow(FilterableModel).to receive(:find_by_name!)
+    allow(FilterableModel).to receive(:find_by_age!)
+    allow(FilterableModel).to receive(:find_by_name_and_age!)
   end
 
-  describe '.filter' do
-    context 'when filtering by name' do
-      it 'returns objects with the matching name' do
-        puts FilterableModel.all.inspect
-        results = FilterableModel.filter(name: 'Gadget')
-        expect(results).to contain_exactly(@item1, @item3)
+  describe 'concern' do
+    context 'when filtering_params is empty' do
+      it 'returns all records' do
+        FilterableModel.filter({})
+        expect(FilterableModel).to have_received(:all)
       end
     end
 
-    # context 'when filtering by price' do
-    #   it 'returns objects with the matching price' do
-    #     results = FilterableModel.filter(price: 200)
-    #     expect(results).to contain_exactly(@item2)
-    #   end
-    # end
+    context 'when filtering_params has one key-value pair' do
+      it 'calls the appropriate find_by method' do
+        FilterableModel.filter(name: 'John')
+        expect(FilterableModel).to have_received(:find_by_name!).with('John')
+      end
+    end
 
-    # context 'when filtering by multiple attributes' do
-    #   it 'returns objects that match all filter criteria' do
-    #     results = FilterableModel.filter(name: 'Gadget', price: 100)
-    #     expect(results).to contain_exactly(@item1)
-    #   end
-    # end
+    context 'when filtering_params has multiple key-value pairs' do
+      it 'calls the appropriate find_by method with concatenated keys' do
+        FilterableModel.filter(name: 'John', age: 30)
+        expect(FilterableModel).to have_received(:find_by_name_and_age!).with('John', 30)
+      end
+    end
 
-    # context 'when filtering with missing parameters' do
-    #   it 'returns all objects when no parameters are given' do
-    #     results = FilterableModel.filter({})
-    #     expect(results).to contain_exactly(@item1, @item2, @item3)
-    #   end
-    # end
+    context 'when filtering_params has nil values or keys' do
+      it 'ignores nil values' do
+        FilterableModel.filter(name: 'John', age: nil)
+        expect(FilterableModel).to have_received(:find_by_name!).with('John')
+      end
+
+      it 'ignores nil keys' do
+        FilterableModel.filter(name: nil, age: 30)
+        expect(FilterableModel).to have_received(:find_by_age!).with(30)
+      end
+    end
   end
 end
